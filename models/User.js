@@ -25,6 +25,24 @@ const userSchema = new mongoose.Schema({
         enum:["Admin", "User"],
         required:true,
     },
+    gender:{
+        type:String,
+    },
+    phoneNumber:{
+        type:String,
+        required: true,
+        trim:true,
+
+    },
+    age:{
+        type:String,
+        required: true,
+    },
+    occupation:{
+        type:String,
+        required:true,
+        trim:true,
+    },
     images:{
         type:String,
         required:true,
