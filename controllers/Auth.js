@@ -26,7 +26,7 @@ exports.signUp = async (req,res) => {
             otp,
         } = req.body;
 
-        if(!firstName || !lastName || !email || !password || !confirmPassword || !age || !gender || !occupation || !otp) {
+        if(!firstName || !lastName || !email || !password || !confirmPassword || !age || !phoneNumber || !gender || !occupation || !otp) {
             return res.status(403).json({
                 success:false,
                 message:"All fields are required",
@@ -201,7 +201,7 @@ exports.sendOTP = async(req,res) => {
             })
         }
 
-        const otpPayload = (email, otp)
+        const otpPayload = {email, otp}
         const otpBody = await OTP.create(otpPayload)
         console.log("OTP body.......", otpBody);
 
@@ -218,3 +218,67 @@ exports.sendOTP = async(req,res) => {
         })
     }
 };
+
+
+
+// Change password
+exports.changePasword = async (req, res) => {
+    try {
+        const userData = await User.findById(req.user.id);
+        const {currPassword, newPassword, confirmNewPassword} = req.body;
+
+        if(!currPassword || !newPassword) {
+            return res.status(401).json({
+                success:false,
+                message:'All fields are mandatory',
+            });
+        }
+
+        // current password validation
+        const isPasswordMatch = await bcrypt.compare(currPassword, userData.password);
+        if(!isPasswordMatch) {
+            return res.status(401).json({
+                success:false,
+                message:'The password is incorrect',
+            });
+        }
+
+        // update the password
+        const encryptedPassword = await bcrypt.hash(newPassword, 10);
+        // update pass in DB
+        const updatedUserData = await User.findByIdAndUpdate(
+            req.user.id,
+            {password: encryptedPassword},
+            {new:true} 
+        );
+
+        // sending mail  i.e password has been updated
+        try {
+            const emailResponse = await mailSender(
+                updatedUserData.email,
+                "Password Change",
+                `Password updated successfully for ${updatedUserData.firstName} ${updatedUserData.lastName}`
+            );
+            // console.log("Email sent...", emailResponse);
+        } catch (error) {
+            console.error("Error occurred while sending email:", error);
+			return res.status(500).json({
+				success: false,
+				message: "Error occurred while sending email",
+				error: error.message,
+			});
+        }
+
+        return res.status(200).json({
+            success:true,
+            message:'Password changed successfully',
+        });
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            success:false,
+            message:'Something went wrong while changing the password. Please try again later',
+        });
+    }
+}

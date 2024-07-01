@@ -14,7 +14,7 @@ const mailSender = async (email, title, body) => {
             from: 'Banjara Products',
             to:`${email}`,
             subject:`${title}`,
-            html:`{body}`,
+            html:`${body}`,
         })
         console.log("MAIL INFO....", info);
         return info;
@@ -22,3 +22,5 @@ const mailSender = async (email, title, body) => {
         console.log(error.message);
     }
 } 
+
+module.exports = mailSender;
