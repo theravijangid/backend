@@ -8,6 +8,8 @@ const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const dotenv = require("dotenv");
 dotenv.config();
+const {cloudinaryConnect} = require("./config/cloudinary");
+const fileUpload = require("express-fileupload");
 
 const PORT = process.env.PORT || 3000;
 
@@ -25,6 +27,13 @@ app.use(
     })
 )
 
+app.use(fileUpload({
+    useTempFiles:true,
+    tempFileDir:"/tmp",
+})) 
+
+// connection to cloudinary
+cloudinaryConnect();
 
 // Api route mount
 app.use("/v1/BanjaraProducts/auth", userRoute);
@@ -38,5 +47,5 @@ app.get('/', (req, res) => {
 })
 
 app.listen(PORT, () => {
-    console.log(`Serever is running on PORT: ${PORT}`)
+    console.log(`Server is running on PORT: ${PORT}`)
 })
