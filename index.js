@@ -2,6 +2,7 @@ const express = require("express")
 const app = express();
 
 const userRoute = require("./routes/User");
+const productRoute = require("./routes/Product");
 
 const database = require("./config/database");
 const cookieParser = require("cookie-parser");
@@ -37,7 +38,7 @@ cloudinaryConnect();
 
 // Api route mount
 app.use("/v1/BanjaraProducts/auth", userRoute);
-
+app.use("/v1/BanjaraProducts/product", productRoute);
 
 app.get('/', (req, res) => {
     return res.json({

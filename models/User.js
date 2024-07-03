@@ -25,6 +25,12 @@ const userSchema = new mongoose.Schema({
         enum:["Admin", "User"],
         required:true,
     },
+    products: [
+        {
+            type:mongoose.Schema.Types.ObjectId,
+            ref:"Product",
+        }
+    ],
     gender:{
         type:String,
     },
