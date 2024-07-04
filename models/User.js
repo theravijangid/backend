@@ -56,6 +56,12 @@ const userSchema = new mongoose.Schema({
     token:{
         type:String,
     },
-});
+    status:{
+        type:String,
+        enum: ["Active", "InActive"],
+    }
+},
+{timestamps:true}
+);
 
 module.exports = mongoose.model("USer", userSchema);

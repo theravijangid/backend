@@ -31,3 +31,49 @@ exports.updateProfilePicture = async (req, res) => {
           })
     }
 }
+
+
+exports.updateProfile = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        
+        // fetch data
+        const {
+            firstName="",
+            lastName="",
+            gender="",
+            phoneNumber="",
+            age="",
+            occupation="",
+            status
+        } = req.body;
+
+        const updatedStatus = status || "Active";
+        // find profile
+        const profileDetails = await User.findByIdAndUpdate(
+            userId,{
+                firstName,
+                lastName,
+                gender,
+                phoneNumber,
+                age,
+                occupation,
+                status: updatedStatus,
+            },
+            {new: true}
+        )
+        
+        // return response
+        return res.status(200).json({
+            success:true,
+            message:'Profile Updated successfully',
+            profileDetails,
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            success:false,
+            message:'Unable to update Profile Details, Please try again',
+        });
+    }
+}
