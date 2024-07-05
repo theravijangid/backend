@@ -59,9 +59,17 @@ const userSchema = new mongoose.Schema({
     status:{
         type:String,
         enum: ["Active", "InActive"],
+        default: "Active",
     }
 },
 {timestamps:true}
 );
 
-module.exports = mongoose.model("USer", userSchema);
+userSchema.pre('save', function(next) {
+    if(this.accountType !== 'Admin') {
+        this.products = undefined;
+    }
+    next();
+})
+
+module.exports = mongoose.model("User", userSchema);

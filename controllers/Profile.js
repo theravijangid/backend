@@ -35,45 +35,99 @@ exports.updateProfilePicture = async (req, res) => {
 
 exports.updateProfile = async (req, res) => {
     try {
-        const userId = req.user.id;
+        const {userId} = req.body;
         
-        // fetch data
-        const {
-            firstName="",
-            lastName="",
-            gender="",
-            phoneNumber="",
-            age="",
-            occupation="",
-            status
-        } = req.body;
+        if(!userId) {
+            return res.status(404).json({
+                success:false,
+                message:"User not found",
+            })
+        }
+        
+        const updatedFields = {};
+        const fields = ['firstName', 'lastName', 'gender', 'phoneNumber', 'age', 'occupation', 'status'];
 
-        const updatedStatus = status || "Active";
-        // find profile
+        fields.forEach(field => {
+            if(req.body[field] !== undefined) {
+                updatedFields[field] = req.body[field];
+            }
+        });
+
+        if(updatedFields.status === undefined) {
+            updatedFields.status = "Active";
+        }
+
+        // find profile and update
         const profileDetails = await User.findByIdAndUpdate(
-            userId,{
-                firstName,
-                lastName,
-                gender,
-                phoneNumber,
-                age,
-                occupation,
-                status: updatedStatus,
-            },
+            userId,
+            {$set: updatedFields},
             {new: true}
-        )
+        );
         
+        console.log("On Response............");
         // return response
         return res.status(200).json({
             success:true,
             message:'Profile Updated successfully',
-            profileDetails,
+            data: profileDetails,
         });
     } catch (error) {
         console.log(error);
         return res.status(500).json({
             success:false,
             message:'Unable to update Profile Details, Please try again',
+        });
+    }
+}
+
+
+// Get all users
+exports.getAllUser = async (req, res) => {
+    try {
+        const users = await User.find({accountType: "User"});
+        
+        return res.status(200).json({
+            success:true,
+            message:'Users retrieved successfully',
+            data: users
+        });
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            success:false,
+            message:'Unable to retrieve User details, Please try again',
+        });
+    }
+}
+
+
+// Delete account
+exports.deleteAccount = async (req, res) => {
+    try {
+        const {userId} = req.body;
+        
+        const user = await User.findById(userId);
+        if(!userId) {
+            return res.status(404).json({
+                success: false,
+                message:"User not found"
+            });
+        }
+
+        await User.findByIdAndDelete(
+            {_id: userId}
+        )
+
+        return res.status(200).json({
+            success:true,
+            message:'Account deleted successfully',
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            success:false,
+            message:'Unable to delete Account, Please try again',
         });
     }
 }
